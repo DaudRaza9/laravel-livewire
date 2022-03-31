@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use App\Models\Comment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 use Intervention\Image\ImageManagerStatic;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -25,8 +26,7 @@ class Comments extends Component
 
     public function mount()
     {
-//        $initalComment = Comment::latest()->get();
-//        $this->comments = $initalComment;
+
     }
     public function render()
     {
@@ -40,25 +40,17 @@ class Comments extends Component
             'newComment'=>'required|max:255'
         ]);
 
-        $image = $this->storeImage();
+        $images =   $this->imageUpload($this->image, 'Comment', 'public/images');
+
         $createdComment = Comment::create([
             'body'=> $this->newComment,
             'user_id'=>1,
-            'image'=>$image
+            'image'=>$images
         ]);
 
         $this->newComment = "";
         $this->image = "";
         session()->flash('message','Comment added successfully');
-    }
-
-    public function storeImage(){
-        if(!$this->image){
-            return null;
-        }
-        $this->image->storeAs('public/images',$this->image);
-//        Storage::put('/public/images/',$this->image);
-        return $this->image;
     }
 
     public function updated($field){
@@ -69,6 +61,8 @@ class Comments extends Component
 
     public function remove($commentId){
         $comment = Comment::find($commentId);
+//        Storage::disk('public')->delete($comment->image);
+        Storage::delete('public/images/'.$comment->image);
         $comment->delete();
         session()->flash('message','Comment deleted successfully');
 
@@ -76,5 +70,13 @@ class Comments extends Component
 
     public function getImagePath(){
         return Storage::disk('images')->url($this->image);
+    }
+
+    public function imageUpload($image, $fileStart, $originalPath): string
+    {
+        $fileName = $fileStart . '-' . time() . rand(1, 100) . '.' . 'png';
+        Storage::putFileAs($originalPath, $image, $fileName);
+        return $fileName;
+
     }
 }

@@ -15,7 +15,7 @@
 
         <section>
             @if($image)
-            <img src="{{$image}}" alt="image" width="150">
+            <img style="height: 20%; width: 20%" src="{{$image}}" alt="image" width="150">
             @endif
             <input type="file" id="image" wire:change="$emit('fileChoosen')">
         </section>
@@ -38,7 +38,7 @@
                     <i class="fas fa-times-circle text-red-200 hover:text-red-600 cursor-pointer" wire:click="remove({{$comment->id}})"></i>
                 </div>
                 @if($comment->image)
-{{--                        <img style="height: 20%; width: 20%" src="{{asset('storage/images/'.$comment->image)}}" alt="">--}}
+                        <img style="height: 20%; width: 20%" src="{{asset('storage/images/'.$comment->image)}}" alt="">
                 @endif
                 <p class="text-gray-800">{{$comment->body}}</p>
 
